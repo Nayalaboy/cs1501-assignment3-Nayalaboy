@@ -2,7 +2,6 @@
  * An implementation of CompressionCodeBookInterface using a DLB Trie.
  */
  public class DLBCodeBook implements CompressionCodeBookInterface {
-
   private static final int R =256;        // alphabet size
   private DLBNode root;
   public StringBuilder currentPrefix;

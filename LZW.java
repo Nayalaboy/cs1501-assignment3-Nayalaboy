@@ -15,9 +15,13 @@ public class LZW {
     private static final int R = 256;        // alphabet size
     private static boolean flushIfFull = false;
 
-    public static void compress() {
+    public static void compress(CompressionCodeBookInterface flushOption) {
+        flushIfFull = "flush".equals(flushOption);
         CompressionCodeBookInterface codebook =
                 new DLBCodeBook(9, 16);
+
+        BinaryStdOut.write(flushIfFull);
+        BinaryStdOut.write(1, 1);
 
         while (!BinaryStdIn.isEmpty()) {
             char c = BinaryStdIn.readChar();
@@ -37,7 +41,8 @@ public class LZW {
 
 
     public static void expand() {
-        ExpansionCodeBookInterface codebook = new ArrayCodeBook(12, 12);
+        flushIfFull = BinaryStdIn.readBoolean();
+        ExpansionCodeBookInterface codebook = new ArrayCodeBook(9,16);
 
         int codeword = BinaryStdIn.readInt(codebook.getCodewordWidth(flushIfFull));
         String val = codebook.getString(codeword);
@@ -60,26 +65,25 @@ public class LZW {
 
     public static void main(String[] args) {
         if (args[0].equals("-")) {
-            int minW = 9;
-            int maxW = 16;
-            CompressionCodeBookInterface codebook = new DLBCodeBook(minW, maxW);
-            BinaryStdOut.write(flushIfFull);
-            BinaryStdOut.write(1, 1);  // write 1 bit to indicate that the minimum and maximum codeword widths are present
-            compress();
-        } else if (args[0].equals("+")) {
-            flushIfFull = BinaryStdIn.readBoolean();
-            int firstBit = BinaryStdIn.readInt(1);
-            if (firstBit == 1) {
-                int minW = 9;
-                int maxW =16;
-                ExpansionCodeBookInterface codebook = new ArrayCodeBook(minW, maxW);
-                expand();
+            if (args.length > 1) {
+                // parse the second argument
+                // you can use Integer.parseInt() to parse the argument as an integer
+                int maxCodeLength = Integer.parseInt(args[1]);
+                // create a codebook with the specified maximum code length
+                CompressionCodeBookInterface codebook = new DLBCodeBook(maxCodeLength, 16);
+                compress(codebook);
             } else {
-                ExpansionCodeBookInterface codebook = new ArrayCodeBook(9, 16);
-                expand();
+                // create a default codebook if no second argument is provided
+                CompressionCodeBookInterface codebook = new DLBCodeBook(9, 16);
+                compress(codebook);
             }
+        } else if (args[0].equals("+")) {
+            // create a default codebook for expansion
+            ExpansionCodeBookInterface codebook = new ArrayCodeBook(9, 16);
+            expand();
         } else {
             throw new RuntimeException("Illegal command line argument");
         }
     }
+
 }

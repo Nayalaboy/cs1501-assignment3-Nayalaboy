@@ -22,21 +22,20 @@ public class ArrayCodeBook implements ExpansionCodeBookInterface {
     }
 
 
-    public int getCodewordWidth(boolean flushIfFull) {
+    public int getCodewordWidth(boolean flushIfFull){
         if (code == L && W < maxW) {
-            return W + 1;
-        }
-        if (code == L && W == maxW) {
+            return W+1;
+        } else if (code == L && W == maxW) {
             if (flushIfFull) {
                 return minW;
             } else {
                 return maxW;
             }
+        } else {
+            return W;
         }
-        return W;
-
     }
-    
+
     private void initialize(){
         codebook = new String[1 << maxW];
         W = minW;
